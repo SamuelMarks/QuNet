@@ -18,9 +18,9 @@ Developers:
 
 # Goal
 
-QuNet is a highly-scalable, multi-user quantum network simulator and benchmarking tool implemented in Julia. It relies on efficient algorithms for performing multi-user routing and congestion avoidance using quantum memories. QuNet focusses on the specific task of distributing entangled Bell pairs between users (<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/9fe95515a9500cc7779b059643c7c7ce.svg?invert_in_darkmode" align=middle width=12.32879835pt height=11.232861749999998pt/></p> and <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/83ff68299814eab9602cad34b564ae2a.svg?invert_in_darkmode" align=middle width=13.2934098pt height=11.232861749999998pt/></p>),
+QuNet is a highly-scalable, multi-user quantum network simulator and benchmarking tool implemented in Julia. It relies on efficient algorithms for performing multi-user routing and congestion avoidance using quantum memories. QuNet focusses on the specific task of distributing entangled Bell pairs between users ($$A$$ and $$B$$),
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/a9f05176273ff2e437ef4e4d914b2c1c.svg?invert_in_darkmode" align=middle width=240.63845189999998pt height=37.0017615pt/></p>
+$$|\Psi^+\rangle = \frac{1}{\sqrt{2}}(|0\rangle_A|0\rangle_B + |1\rangle_A|1\rangle_B).$$
 </p>
 These can subsequently be employed in state teleportation protocols to transmit arbitrary quantum states, or be applied to quantum key distribution, distributed quantum computing, or other entanglement-based quantum protocols.
 
@@ -32,31 +32,31 @@ Quantum channels can be represented in the quantum process formalism using the K
 
 Consider the loss channel,
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/f695658b6e2577f896cc77a9b3c4a2af.svg?invert_in_darkmode" align=middle width=234.82208805pt height=16.438356pt/></p>
+$$\mathcal{E}_\mathrm{loss}(\rho) = p\rho + (1-p)|vac\rangle\langle vac|,$$
 </p>
-where <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/3ceb13107024b0fcb56c22464beee0a1.svg?invert_in_darkmode" align=middle width=8.27056725pt height=10.2739725pt/></p> is the probability of a qubit not being lost, otherwise replaced with the vacuum state <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/0560edde27db712cede6068bbd4aa77c.svg?invert_in_darkmode" align=middle width=35.31973995pt height=16.438356pt/></p>. If multiple such channels are applied in series the <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/3ceb13107024b0fcb56c22464beee0a1.svg?invert_in_darkmode" align=middle width=8.27056725pt height=10.2739725pt/></p>'s multiply,
+where $$p$$ is the probability of a qubit not being lost, otherwise replaced with the vacuum state $$|vac\rangle$$. If multiple such channels are applied in series the $$p$$'s multiply,
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/ac67d7696cce73f64d273461bcc9d133.svg?invert_in_darkmode" align=middle width=100.16455514999998pt height=36.6554298pt/></p>
+$$p_\mathrm{total} = \prod_i p_i.$$
 </p>
 However by converting to logarithmic form we can make this additive,
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/3f28c23f4c5cd88297fcddfd8bd13e6a.svg?invert_in_darkmode" align=middle width=193.13266829999998pt height=36.6554298pt/></p>
+$$-\log(p_\mathrm{net}) = -\sum_i \log(p_i).$$
 </p>
-Now <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/b4d4f3024f59b30fc83f1540ef13e98b.svg?invert_in_darkmode" align=middle width=105.11032784999999pt height=16.438356pt/></p> can be used as an additive edge weight. This is a common approach amongst experimentalists, who typically consider loss over fibre in terms of decibels per unit distance (dB/m).
+Now $$m_i=-\log(p_i)$$ can be used as an additive edge weight. This is a common approach amongst experimentalists, who typically consider loss over fibre in terms of decibels per unit distance (dB/m).
 
 We can apply a similar approach to depolarising channels whose quantum process is given by,
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/7d0aa0d5881db185b585c3d4ed837f04.svg?invert_in_darkmode" align=middle width=186.9474321pt height=33.62942055pt/></p>
+$$\mathcal{E}_\mathrm{depol}(\rho) = p\rho + (1-p)\frac{I}{2},$$
 </p>
-and <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/cc8a617ae6ffccf9631b6ab1bf8b7a3d.svg?invert_in_darkmode" align=middle width=94.1647344pt height=16.438356pt/></p> acts additively. With some algebraic manipulation we can apply this to dephasing channels,
+and $$m=-\log(p)$$ acts additively. With some algebraic manipulation we can apply this to dephasing channels,
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/7097fd5161ce6853f96142bf5075db3e.svg?invert_in_darkmode" align=middle width=295.102665pt height=17.031940199999998pt/></p>
+$$\mathcal{E}_\mathrm{deph}(\rho) = (2p-1)\rho + (1-p)(\rho + Z\rho Z),$$
 </p>
-where <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/76a2f1f6218a3655a28f9c29e1b03ecc.svg?invert_in_darkmode" align=middle width=94.34361255pt height=16.438356pt/></p> acts as our additive dephasing metric. Note this representation of the dephasing channel has been algebraically manipulated into an unaffected term (<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/1d84f74d18b38c9769ea6e77e5ab705e.svg?invert_in_darkmode" align=middle width=8.49888435pt height=10.2739725pt/></p>), and a completely dephased term (<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/a8319a1f455fbd7fea85d68806345cdb.svg?invert_in_darkmode" align=middle width=61.883502449999995pt height=14.42921205pt/></p>) which is the steady-state of the channel. This approach could also be applied to bit-flip (<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/c1809668d64eff2bbf358a60787e123b.svg?invert_in_darkmode" align=middle width=14.90868885pt height=11.232861749999998pt/></p>) channels, bit-phase-flip (<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/214cdf855cd058fbde6b3df6b912ff25.svg?invert_in_darkmode" align=middle width=13.1963865pt height=11.232861749999998pt/></p>) channels, or amplitude damping channels.
+where $$-\log(2p-1)$$ acts as our additive dephasing metric. Note this representation of the dephasing channel has been algebraically manipulated into an unaffected term ($$\rho$$), and a completely dephased term ($$\rho+Z\rho Z$$) which is the steady-state of the channel. This approach could also be applied to bit-flip ($$X$$) channels, bit-phase-flip ($$Y$$) channels, or amplitude damping channels.
 
 # Multi-path routing
 
-Classical networks rely on path-finding algorithms (e.g shortest path à la Dijkstra) for optimal packet routing. This is highly efficient, since Dijkstra's algorithm has worst case <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/4b781e37639a47d30ea9c0e04688e960.svg?invert_in_darkmode" align=middle width=46.39734825pt height=18.312383099999998pt/></p> runtime in the number of graph vertices <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/5caf07c3e63112b4bcc65842a90c851d.svg?invert_in_darkmode" align=middle width=13.24203705pt height=11.232861749999998pt/></p>. Quantum networks can employ multi-path routing, whereby multiple independently routed Bell pairs are purified into one of higher fidelity.
+Classical networks rely on path-finding algorithms (e.g shortest path à la Dijkstra) for optimal packet routing. This is highly efficient, since Dijkstra's algorithm has worst case $$O(V^2)$$ runtime in the number of graph vertices $$V$$. Quantum networks can employ multi-path routing, whereby multiple independently routed Bell pairs are purified into one of higher fidelity.
 
 <p align="center"><img src="https://user-images.githubusercontent.com/4382522/115101952-634a0d00-9f8b-11eb-986e-2bb964d8273b.jpeg" width="50%"></p>
 <!--- ![1F8AF4E2-0408-45B0-98B9-9ABA8FD10FB1](https://user-images.githubusercontent.com/4382522/115101952-634a0d00-9f8b-11eb-986e-2bb964d8273b.jpeg) --->
@@ -153,9 +153,9 @@ Here’s a multi-user network with 3 users (colour coded) and multi-path routing
 
 Our greedy multi-path routing algorithm allows multi-user routing with congestion mitigation via quantum memories, with algorithmic efficiency,
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/a0696e08f01fa5a5e8b50cc54035a08a.svg?invert_in_darkmode" align=middle width=76.07774789999999pt height=18.312383099999998pt/></p>
+$$O(M^3V^2),$$
 </p>
-for <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/37368feb0d5d1e40e9cecbfad0e522c7.svg?invert_in_darkmode" align=middle width=17.7397374pt height=11.232861749999998pt/></p> user-pairs on a <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/5caf07c3e63112b4bcc65842a90c851d.svg?invert_in_darkmode" align=middle width=13.24203705pt height=11.232861749999998pt/></p>-vertex graph, and is therefore highly scalable and efficient in both users and network size.
+for $$M$$ user-pairs on a $$V$$-vertex graph, and is therefore highly scalable and efficient in both users and network size.
 
 Here we consider a grid network with edge percolations, showing the likelihood of users utilising different path numbers as the network becomes increasingly disconnected.
 
@@ -179,13 +179,13 @@ Our next stage of research is applying QuNet to distributed quantum computing. E
 Consider a distributed computer with N nodes, each with n bits/qubits, and a scaling function that indicates classical-equivalent compute power (classically this is linear, for quantum computers super-linear). The computational gain achieved by unifying remote devices is,
 
 <p align="center">
-<p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/16e94cb5b5e542d04be7ba1da2429b92.svg?invert_in_darkmode" align=middle width=109.4648445pt height=38.83491479999999pt/></p>
+$$\lambda = \frac{f_\mathrm{sc}(Nn)}{N\cdot f_\mathrm{sc}(n)}.$$
 </p>
 <!--- ![31684FB9-FAB0-4C00-A44C-3A4BB5CBB809](https://user-images.githubusercontent.com/4382522/115102197-ba9cad00-9f8c-11eb-97b6-2adc7d92769e.jpeg) --->
 
 Through unification of remote computational assets:
-+ Classical computers, <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/f314846dccf5fd9029477a723971b602.svg?invert_in_darkmode" align=middle width=39.72592305pt height=11.4155283pt/></p>. There is no computational enhancement.
-+ Quantum computers <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/f04f5baca9cf304dd8975251657eb957.svg?invert_in_darkmode" align=middle width=39.72592305pt height=12.05823135pt/></p>, in the best case <p align="center"><img src="https://rawgit.com/SamuelMarks/QuNet (fetch/main/svgs/cecd5eb1412aaefbf8b3d4f647e7a52d.svg?invert_in_darkmode" align=middle width=84.4063341pt height=16.438356pt/></p>. We achieve exponential computational enhancement.
++ Classical computers, $$\lambda=1$$. There is no computational enhancement.
++ Quantum computers $$\lambda>1$$, in the best case $$\lambda=\mathrm{exp}(N)$$. We achieve exponential computational enhancement.
 
 # The vision
 
